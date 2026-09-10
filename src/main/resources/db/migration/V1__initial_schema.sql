@@ -1,7 +1,3 @@
--- =========================================
--- V1 - Schema inicial do CampusGigs (Postgres)
--- =========================================
-
 CREATE TABLE usuarios (
     id            BIGSERIAL PRIMARY KEY,
     nome          VARCHAR(120) NOT NULL,
