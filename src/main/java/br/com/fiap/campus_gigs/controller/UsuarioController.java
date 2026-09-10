@@ -1,5 +1,6 @@
 package br.com.fiap.campus_gigs.controller;
 
+import br.com.fiap.campus_gigs.dto.CepUpdateRequest;
 import br.com.fiap.campus_gigs.dto.UsuarioRequest;
 import br.com.fiap.campus_gigs.dto.UsuarioResponse;
 import br.com.fiap.campus_gigs.model.Usuario;
@@ -29,5 +30,12 @@ public class UsuarioController {
     @GetMapping("/me")
     public ResponseEntity<UsuarioResponse> me(@AuthenticationPrincipal Usuario usuario) {
         return ResponseEntity.ok(UsuarioResponse.from(usuario));
+    }
+
+    @PatchMapping("/me/cep")
+    public ResponseEntity<UsuarioResponse> atualizarCep(@RequestBody @Valid CepUpdateRequest request,
+                                                        @AuthenticationPrincipal Usuario usuario) {
+        Usuario atualizado = usuarioService.atualizarCep(usuario.getId(), request.cep());
+        return ResponseEntity.ok(UsuarioResponse.from(atualizado));
     }
 }
