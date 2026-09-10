@@ -1,6 +1,6 @@
 # CampusGigs — Projeto Diamante
 
-Plataforma de freelas entre estudantes universitários desenvolvida com **Spring Boot**, **Spring Security (JWT)**, **Flyway**, **Docker Compose** e **Spring HttpExchange**.
+Plataforma de freelas entre estudantes universitários desenvolvida com **Spring Boot**, **Spring Security com JWT**, **Flyway**, **Docker Compose** e **Spring HttpExchange**.
 
 ---
 
@@ -8,12 +8,12 @@ Plataforma de freelas entre estudantes universitários desenvolvida com **Spring
 
 - **Java 21**
 - **Spring Boot 3.3.4**
-- **Spring Security** com autenticação stateless e tokens **JWT (jjwt 0.12.6)**
+- **Spring Security** com autenticação stateless e tokens **JWT via jjwt 0.12.6**
 - **Spring Data JPA** e **Hibernate**
 - **Flyway** para versionamento e migrações do banco de dados
 - **PostgreSQL 16** via **Docker Compose**
-- **Spring HttpExchange** (cliente HTTP declarativo do Spring Framework) para integração com ViaCEP
-- **Lombok** e **Bean Validation (Jakarta Validation)**
+- **Spring HttpExchange** como cliente HTTP declarativo para integração com ViaCEP
+- **Lombok** e **Bean Validation com Jakarta Validation**
 
 ---
 
@@ -21,7 +21,7 @@ Plataforma de freelas entre estudantes universitários desenvolvida com **Spring
 
 ### Pré-requisitos
 - **Docker** e **Docker Compose** instalados e em execução.
-- **Java 21 (JDK)** instalado (ou uso do wrapper Gradle incluso).
+- **Java 21 JDK** instalado ou uso do wrapper Gradle incluso no projeto.
 
 ### 2.1 Subindo o Banco de Dados com Docker
 O projeto conta com o `compose.yaml` configurado. Para iniciar o banco de dados PostgreSQL na porta padrão `5432`:
@@ -34,12 +34,12 @@ docker compose up -d postgres
 
 ### 2.2 Executando a Aplicação Localmente
 
-No Linux/macOS:
+No Linux ou macOS:
 ```bash
 ./gradlew bootRun
 ```
 
-No Windows (PowerShell / Prompt de Comando):
+No Windows no PowerShell ou Prompt de Comando:
 ```powershell
 .\gradlew.bat bootRun
 ```
@@ -66,30 +66,30 @@ O projeto inclui a migração Flyway `V2__seed_admin.sql` que inicializa uma con
 
 ## 4. Principais Endpoints da API
 
-### Autenticação & Usuários
+### Autenticação e Usuários
 - `POST /usuarios` — Cadastra um novo usuário aluno. Caso o CEP seja informado, a API consulta o ViaCEP de forma declarativa e preenche cidade e UF automaticamente.
 - `POST /auth/login` — Autentica o usuário e retorna o token JWT no formato `Bearer`.
 - `GET /usuarios/me` — Retorna os dados do usuário autenticado no momento.
 - `PATCH /usuarios/me/cep` — Atualiza o CEP do usuário logado, reconsultando cidade e UF no serviço externo.
 
-### Serviços (Freelas)
-- `POST /servicos` — Publica um novo serviço (requer autenticação; o autor torna-se o prestador).
-- `GET /servicos` — Lista os serviços publicados (aberto para consulta; suporta filtros `?categoria=TI` e `?situacao=ativo`).
+### Serviços
+- `POST /servicos` — Publica um novo serviço com autorização obrigatória, definindo o autor autenticado como prestador.
+- `GET /servicos` — Lista os serviços publicados aberto para consulta pública, com suporte a filtros por categoria e situacao.
 - `GET /servicos/{id}` — Consulta os detalhes de um serviço específico.
-- `PUT /servicos/{id}` — Edita dados de um serviço (apenas o prestador dono ou usuário com papel `ADMIN`).
-- `PATCH /servicos/{id}/encerrar` — Encerra um serviço publicado (apenas o prestador dono ou usuário com papel `ADMIN`).
+- `PUT /servicos/{id}` — Edita dados de um serviço, restrito ao prestador dono ou usuário com papel `ADMIN`.
+- `PATCH /servicos/{id}/encerrar` — Encerra um serviço publicado, restrito ao prestador dono ou usuário com papel `ADMIN`.
 
 ### Contratações
-- `POST /contratacoes` — Contrata um serviço ativo (requer autenticação; proibido contratar o próprio serviço ou serviços inativos).
-- `GET /contratacoes` — Lista as contratações relacionadas ao usuário logado (usuário `ADMIN` visualiza todas).
+- `POST /contratacoes` — Contrata um serviço ativo com autenticação obrigatória, vedada a contratação do próprio serviço ou de serviços inativos.
+- `GET /contratacoes` — Lista as contratações relacionadas ao usuário logado, com visualização de todas as contratações para usuário `ADMIN`.
 - `GET /contratacoes/{id}` — Exibe detalhes de uma contratação específica.
-- `PATCH /contratacoes/{id}/situacao` — Altera a situação da contratação (`solicitada`, `aceita`, `concluida`, `cancelada`).
+- `PATCH /contratacoes/{id}/situacao` — Altera a situação da contratação para solicitada, aceita, concluida ou cancelada.
 
 ---
 
 ## 5. Exemplos de Chamadas e Evidências de Testes Manuais
 
-### 5.1 Cadastro de Usuário com Integração Declarativa de CEP (HttpExchange)
+### 5.1 Cadastro de Usuário com Integração Declarativa de CEP via HttpExchange
 
 **Requisição:**
 ```bash
@@ -103,7 +103,7 @@ curl -X POST http://localhost:8080/usuarios \
   }'
 ```
 
-**Resposta (HTTP 201 Created):**
+**Resposta HTTP 201 Created:**
 ```json
 {
   "id": 2,
@@ -118,7 +118,7 @@ curl -X POST http://localhost:8080/usuarios \
 
 ---
 
-### 5.2 Autenticação (Login) e Obtenção do Token JWT
+### 5.2 Autenticação e Obtenção do Token JWT
 
 **Requisição:**
 ```bash
@@ -130,7 +130,7 @@ curl -X POST http://localhost:8080/auth/login \
   }'
 ```
 
-**Resposta (HTTP 200 OK):**
+**Resposta HTTP 200 OK:**
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsdWNhc0BjYW1wdXNnaWdzLmJyIiwiaWQiOjIsInBhcGVsIjoiVVNFUiIsImlhdCI6MTY5...",
@@ -149,7 +149,7 @@ curl -X POST http://localhost:8080/auth/login \
 
 ---
 
-### 5.3 Publicação de um Freela (Serviço)
+### 5.3 Publicação de um Serviço
 
 **Requisição com Token:**
 ```bash
@@ -164,7 +164,7 @@ curl -X POST http://localhost:8080/servicos \
   }'
 ```
 
-**Resposta (HTTP 201 Created):**
+**Resposta HTTP 201 Created:**
 ```json
 {
   "id": 1,
@@ -184,7 +184,7 @@ curl -X POST http://localhost:8080/servicos \
 
 ### 5.4 Contratação de Serviço por Outro Aluno
 
-**Requisição (Autenticado como Mariana, ID 3):**
+**Requisição autenticada como Mariana com ID 3:**
 ```bash
 curl -X POST http://localhost:8080/contratacoes \
   -H "Authorization: Bearer <TOKEN_MARIANA>" \
@@ -194,7 +194,7 @@ curl -X POST http://localhost:8080/contratacoes \
   }'
 ```
 
-**Resposta (HTTP 201 Created):**
+**Resposta HTTP 201 Created:**
 ```json
 {
   "id": 1,
@@ -213,7 +213,7 @@ curl -X POST http://localhost:8080/contratacoes \
 
 ### 5.5 Regra de Negócio: Proibição de Contratar o Próprio Serviço
 
-**Requisição (Lucas tentando contratar seu próprio serviço ID 1):**
+**Requisição de Lucas tentando contratar seu próprio serviço ID 1:**
 ```bash
 curl -X POST http://localhost:8080/contratacoes \
   -H "Authorization: Bearer <TOKEN_LUCAS>" \
@@ -223,7 +223,7 @@ curl -X POST http://localhost:8080/contratacoes \
   }'
 ```
 
-**Resposta (HTTP 400 Bad Request):**
+**Resposta HTTP 400 Bad Request:**
 ```json
 {
   "timestamp": "2026-09-10T13:26:00",
@@ -234,9 +234,9 @@ curl -X POST http://localhost:8080/contratacoes \
 
 ---
 
-### 5.6 Evidência de Acesso Negado por Papel (HTTP 403 Forbidden)
+### 5.6 Evidência de Acesso Negado por Papel HTTP 403 Forbidden
 
-**Cenário:** O aluno Mariana (`USER`) tenta encerrar o freela pertencente a Lucas:
+**Cenário:** O aluno Mariana com papel `USER` tenta encerrar o serviço pertencente a Lucas:
 
 **Requisição com Token de Usuário Comum:**
 ```bash
@@ -244,7 +244,7 @@ curl -X PATCH http://localhost:8080/servicos/1/encerrar \
   -H "Authorization: Bearer <TOKEN_MARIANA>"
 ```
 
-**Resposta (HTTP 403 Forbidden):**
+**Resposta HTTP 403 Forbidden:**
 ```json
 {
   "timestamp": "2026-09-10T13:27:00",
@@ -253,7 +253,7 @@ curl -X PATCH http://localhost:8080/servicos/1/encerrar \
 }
 ```
 
-**Cenário:** O usuário com papel `ADMIN` executa o encerramento do mesmo freela de terceiros:
+**Cenário:** O usuário com papel `ADMIN` executa o encerramento do mesmo serviço de terceiros:
 
 **Requisição com Token de Administrador:**
 ```bash
@@ -261,7 +261,7 @@ curl -X PATCH http://localhost:8080/servicos/1/encerrar \
   -H "Authorization: Bearer <TOKEN_ADMIN>"
 ```
 
-**Resposta (HTTP 200 OK):**
+**Resposta HTTP 200 OK:**
 ```json
 {
   "id": 1,
@@ -283,6 +283,6 @@ curl -X PATCH http://localhost:8080/servicos/1/encerrar \
 
 - **CP1:** Ambiente configurado com Docker Compose e PostgreSQL na porta padrão 5432, associado à biblioteca `spring-boot-docker-compose` e Flyway para controle declarativo do schema inicial.
 - **CP2:** Cadastro e autenticação seguros usando hash BCrypt para senhas e validação de credenciais centralizada sem expor informações de infraestrutura.
-- **CP3:** Emissão e validação de tokens JWT (HS256) em filtro customizado `OncePerRequestFilter`, garantindo autenticação prévia em rotas restritas e extração de claims.
-- **CP4:** Modelagem do domínio de Serviços e Contratações aplicando controle estrito de permissões: apenas prestador dono ou `ADMIN` encerra freelas, bloqueando contratações do próprio serviço ou de serviços fora da situação `ativo`.
-- **CP5:** Implementação de cliente declarativo Spring HTTP (`@HttpExchange` / `@GetExchange`) integrado ao ViaCEP com configuração explícita de timeout (conexão e leitura). Em caso de indisponibilidade ou latência excessiva do serviço externo, a exceção é interceptada e convertida em resposta amigável centralizada, evitando travamento ou stack traces no cliente.
+- **CP3:** Emissão e validação de tokens JWT com algoritmo HS256 em filtro customizado `OncePerRequestFilter`, garantindo autenticação prévia em rotas restritas e extração de claims.
+- **CP4:** Modelagem do domínio de Serviços e Contratações aplicando controle estrito de permissões: apenas prestador dono ou `ADMIN` encerra freelas, bloqueando contratações do próprio serviço ou de serviços fora da situação ativo.
+- **CP5:** Implementação de cliente declarativo Spring HTTP com as anotações `@HttpExchange` e `@GetExchange` integrado ao ViaCEP com configuração explícita de timeout de conexão e leitura. Em caso de indisponibilidade ou latência excessiva do serviço externo, a exceção é interceptada e convertida em resposta amigável centralizada, evitando travamento ou stack traces no cliente.
